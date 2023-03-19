@@ -12,3 +12,7 @@ ESN(Echo-State-Network)
 * generative mode를 통해 fit 까지 학습되어 있던 데이터에서 직후 원하는 데이터의 길이만큼을 predict 할 수 있는 강력한 성능을 지님. 
 * 데이터를 input 할때에는 row는 feature, column은 time으로 작성되어 있으며, output weight는 row는 time, column은 weight의 갯수이다.
 * numpy에서 torch를 통해 gpu 연산이 가능하도록 변경하였음.
+---------------------
+3/19 수정
+* detach().numpy() tensor를 plt에 사용
+* esn1.py는 backpropagation을 통해 학습하며 loss 함수로는 mseLoss를 사용 (regression에서는 mseloss를 주로 사용하고, classify에서는 crossentropy사용)
