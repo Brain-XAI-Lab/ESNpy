@@ -17,7 +17,7 @@ device = torch.device('cuda:0' if USE_CUDA else 'cpu')
 class ESN():
     def __init__(self, n_readout, 
                  resSize, damping=0.3, spectral_radius=None,
-                 weight_scaling=1.25,initLen=0, random_state=42,inter_unit=torch.tanh, learning_rate=1e-2):
+                 weight_scaling=1.25,initLen=0, random_state=42,inter_unit=torch.tanh, learning_rate=1e-2,latent_unit=1):
         
         self.resSize=resSize
         self.n_readout=n_readout # 마지막에 연결된 노드 갯수
@@ -27,6 +27,7 @@ class ESN():
         self.initLen=initLen # 처음에 버릴 길이
         self.random_state=random_state
         self.inter_unit=inter_unit
+        self.latent_unit=latent_unit
         self.learning_rate = learning_rate
         self.Win=None # 학습하여 input weight가 있다면 넣어준다
         self.W=None # 학습하여 weight가 있다면 넣어준다
@@ -84,8 +85,8 @@ class ESN():
         self.out=torch.DoubleTensor(out)
         print(self.out)
         '''
-        WL= torch.rand(1,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
-        Wout= torch.rand(1,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
+        WL= torch.rand(self.latent_unit ,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
+        Wout= torch.rand(self.n_readout ,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
         criterion = torch.nn.MSELoss()
         parameters=[WL,Wout]
         optimizer = optim.Adam([WL,Wout], self.learning_rate)
