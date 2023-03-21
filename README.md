@@ -18,6 +18,6 @@ ESN(Echo-State-Network)
 * Esn1.py는 backpropagation을 통해 학습하며 loss 함수로는 mseLoss를 사용 (regression에서는 mseloss를 주로 사용하고, classify에서는 crossentropy사용)
 ----------------------
 3/20 수정
-* Esn2.py를 auto encoder를 생성하였다(back propagation을 이용하여 WL과 Wout을 업데이트)
-* auto encoder를 통해 input값을 넣으면 esn 망을 지나서 latent space로 이동하는데 WL의 크기를 지정하여 노드는 원하는 만큼 생성하면 된다.
-* latent를 생성하여 다시 input 값으로 넣고 한번 더 esn망을 지나서 output을 생성하는데 이에 역전파를 통해서 output과 예측된 값이 같아지도록 WL과 Wout을 업데이트 하도록 한다)
+* Esn2.py를 auto encoder를 생성(back propagation을 이용하여 WL과 Wout을 업데이트)
+* auto encoder를 통해 input값을 넣으면 esn 망을 지나서 latent space로 이동하는데 WL의 크기를 지정하여 노드는 원하는 만큼 생성하여 사용(노드의 수에 따라 성능의 차이가 있을 수도 있음).
+* latent를 생성하여 다시 input 값으로 넣고 한번 더 esn망을 지나서 output을 생성하는데 이에 역전파를 통해서 output과 예측된 값이 같아지도록 WL과 Wout을 업데이트.
