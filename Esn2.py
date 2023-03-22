@@ -19,7 +19,7 @@ class ESN():
                  resSize, damping=0.3, spectral_radius=None, n_out=1,
                  weight_scaling=1.25,initLen=0, random_state=42,inter_unit=torch.tanh, learning_rate=0.1):
         
-        self.resSize=resSize
+        self.resSize=resSize # 레저버 컴퓨팅에 있어서 웨이트 갯수
         self.n_readout=n_readout # latent 마지막에 연결된 노드 갯수
         self.n_out=n_out # 마지막에 연결된 노드 갯수
         self.damping = damping  # 소실하는 정도로 모든 노드를 사용하지 않는다
@@ -27,12 +27,12 @@ class ESN():
         self.weight_scaling=weight_scaling
         self.initLen=initLen # 처음에 버릴 길이
         self.random_state=random_state
-        self.inter_unit=inter_unit
+        self.inter_unit=inter_unit # 내부에서 사용할 함수
         self.learning_rate = learning_rate
         self.Win=None # 학습하여 input weight가 있다면 넣어준다
         self.W=None # 학습하여 weight가 있다면 넣어준다
         torch.manual_seed(random_state) # torch에서 random값 고정
-        self.out=None
+        self.out = None
         
         
     def init_fit(self,input):
