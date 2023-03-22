@@ -78,12 +78,10 @@ class ESN():
         # using scipy.linalg.solve:
         '''
         reg = 1e-8
-        out = linalg.solve(torch.matmul(self.X,self.X.T) + reg*torch.eye(1+n_feature+self.resSize), torch.matmul(X,Yt.T)).T
-        
-        out=np.array(out)
-        out=torch.DoubleTensor(out).to(device)
-        self.out=torch.DoubleTensor(out)
-        print(self.out)
+        Wout = linalg.solve(torch.matmul(self.X,self.X.T) + reg*torch.eye(1+n_feature+self.resSize), torch.matmul(X,Yt.T)).
+        Wout=np.array(Wout)
+        Wout=torch.DoubleTensor(Wout).to(device)
+        self.Wout=torch.DoubleTensor(Wout)
         '''
         WL= torch.rand(self.n_readout,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
         Wout= torch.rand(self.n_out,1+self.n_readout+self.resSize, dtype=torch.double,requires_grad=True).to(device)
