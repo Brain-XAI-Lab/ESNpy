@@ -16,18 +16,18 @@ USE_CUDA = torch.cuda.is_available()
 device = torch.device('cuda:0' if USE_CUDA else 'cpu')
 class ESN():
     def __init__(self, n_readout, 
-                 resSize, damping=0.3, spectral_radius=None,
-                 weight_scaling=1.25,initLen=0, random_state=42,inter_unit=torch.tanh, learning_rate=1e-2,latent_unit=1):
+                 resSize, damping=0.3, spectral_radius=None, n_out=1,
+                 weight_scaling=1.25,initLen=0, random_state=42,inter_unit=torch.tanh, learning_rate=0.1):
         
         self.resSize=resSize
-        self.n_readout=n_readout # 마지막에 연결된 노드 갯수
+        self.n_readout=n_readout # latent 마지막에 연결된 노드 갯수
+        self.n_out=n_out # 마지막에 연결된 노드 갯수
         self.damping = damping  # 소실하는 정도로 모든 노드를 사용하지 않는다
         self.spectral_radius=spectral_radius # 1보다 작아야한다
         self.weight_scaling=weight_scaling
         self.initLen=initLen # 처음에 버릴 길이
         self.random_state=random_state
         self.inter_unit=inter_unit
-        self.latent_unit=latent_unit
         self.learning_rate = learning_rate
         self.Win=None # 학습하여 input weight가 있다면 넣어준다
         self.W=None # 학습하여 weight가 있다면 넣어준다
@@ -44,7 +44,7 @@ class ESN():
             W1 = torch.rand(self.resSize,self.resSize, dtype=torch.double,requires_grad=False).to(device) - 0.5
             self.Win1 = (torch.rand(self.resSize,1+n_feature, dtype=torch.double,requires_grad=False).to(device) - 0.5) * 1
             W2 = torch.rand(self.resSize,self.resSize, dtype=torch.double,requires_grad=False).to(device) - 0.5
-            self.Win2 = (torch.rand(self.resSize,1+n_feature, dtype=torch.double,requires_grad=False).to(device) - 0.5) * 1
+            self.Win2 = (torch.rand(self.resSize,1+self.n_readout, dtype=torch.double,requires_grad=False).to(device) - 0.5) * 1
         print('Computing spectral radius...')
         #spectral_radius = max(abs(linalg.eig(W)[0]))  default
         print('done.')
@@ -85,25 +85,28 @@ class ESN():
         self.out=torch.DoubleTensor(out)
         print(self.out)
         '''
-        WL= torch.rand(self.latent_unit ,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
-        Wout= torch.rand(self.n_readout ,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
+        WL= torch.rand(self.n_readout,1+n_feature+self.resSize, dtype=torch.double,requires_grad=True).to(device)
+        Wout= torch.rand(self.n_out,1+self.n_readout+self.resSize, dtype=torch.double,requires_grad=True).to(device)
         criterion = torch.nn.MSELoss()
         parameters=[WL,Wout]
         optimizer = optim.Adam([WL,Wout], self.learning_rate)
         latent = torch.zeros((self.n_readout,n_input-1)).type(torch.double).to(device)
         Y = torch.zeros((self.n_readout,n_input-1)).type(torch.double).to(device)
         
-        for i in range(150):
+        for i in range(200):
             
             for t in range(n_input-1):
                 u=torch.DoubleTensor(np.array(input[:,t],ndmin=2)).to(device)
                 x1 = (1-self.damping)*x1 + self.damping*self.inter_unit( torch.matmul( self.Win1, torch.vstack([torch.DoubleTensor([1]),u]) ) + torch.matmul( self.W1, x1 ) )
                 la= torch.matmul( WL, torch.vstack([torch.DoubleTensor([1]),u,x1]).detach()).to(device) 
-            
+                la=la.reshape(self.n_readout)
                 if t >= self.initLen:
                     latent[:,t-self.initLen] = la
+           
             for j in range(n_input-1):
                 m = torch.DoubleTensor(latent[:,j]).to(device)
+                if self.n_readout > 1:
+                    m = m.reshape(self.n_readout,self.n_out)
                 x2 = (1-self.damping)*x2+ self.damping*self.inter_unit( torch.matmul( self.Win2, torch.vstack([torch.DoubleTensor([1]),m]) ) + torch.matmul( self.W2, x2 ) )
                 y = torch.matmul( Wout, torch.vstack([torch.DoubleTensor([1]),m,x2]).detach()).to(device) 
             
